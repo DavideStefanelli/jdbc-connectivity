@@ -26,6 +26,8 @@ public class JdbcConnectivity2 {
             s.setQualifica("Diploma"); 
             crud.CreateStudent(s);
             
+            Studente s2 = crud.getStudent("ASFASD123001");
+            System.out.println(s2.getEmail());
             
           
         } catch (CrudException ex) {

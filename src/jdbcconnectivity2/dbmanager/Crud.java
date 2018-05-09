@@ -18,7 +18,8 @@ import entities.Studente;
 public class Crud {
     
     private static final String insertSQL = "INSERT INTO studente (nome, cognome, email, residenza, cf, telefono, qualifica) VALUES (?,?,?,?,?,?,?)";
-    private static final String deleteSQL = "DELETE FROM studente WHERE nome = ? AND cognome = ?";
+    private static final String deleteSQL = "DELETE FROM studente WHERE cf = ?";
+    private static final String selectSQL = "SELECT * FROM studente WHERE cf = ?";
     
     private DBManager dbManager = null;
     
@@ -30,8 +31,30 @@ public class Crud {
         return dbManager;
     }
         
-    public void CreateStudent(Studente s) throws CrudException {    
-        try{
+    public Studente getStudent(String cf) throws CrudException {
+        Studente s = new Studente();
+        try { 
+            PreparedStatement selectOperation = dbManager.getConnection().prepareStatement(selectSQL);
+            selectOperation.setString(1, cf);
+            ResultSet rs = selectOperation.executeQuery();
+            while(rs.next()){
+                s.setNome(rs.getString("nome"));
+                s.setCognome(rs.getString("cognome"));
+                s.setEmail(rs.getString("email"));
+                s.setResidenza(rs.getString("residenza"));
+                s.setCf(rs.getString("cf"));
+                s.setTelefono(rs.getString("telefono"));
+                s.setQualifica(rs.getString("qualifica"));
+                return s;
+            }
+        } catch(Exception ex) {
+            Logger.getLogger(Crud.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+    public boolean CreateStudent(Studente s) throws CrudException {    
+        try {
             PreparedStatement insertOperation = dbManager.getConnection().prepareStatement(insertSQL);
             insertOperation.setString(1, s.getNome());
             insertOperation.setString(2, s.getCognome());
@@ -41,32 +64,24 @@ public class Crud {
             insertOperation.setString(6, s.getTelefono());
             insertOperation.setString(7, s.getQualifica());
             insertOperation.executeUpdate();
-        }catch(Exception ex){
+            return true;
+        } catch(Exception ex) {
             Logger.getLogger(Crud.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return false;
     }
     
-    public void DeleteStudent(String nome, String cognome) throws CrudException {            
-        try{
+    public boolean DeleteStudent(Studente s) throws CrudException {            
+        try {
             PreparedStatement insertOperation = dbManager.getConnection().prepareStatement(deleteSQL);
-            insertOperation.setString(1, nome);
-            insertOperation.setString(2, cognome);
+            insertOperation.setString(1, s.getCf());
             insertOperation.executeUpdate();
-        }catch(Exception ex){
+            return true;
+        } catch(Exception ex) {
             Logger.getLogger(Crud.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return false;
     }
-    
-      
-    /* 
-            String insertSQL = "UPDATE studente SET nome = ? WHERE email = ?";
-            
-            PreparedStatement insertOperation = conn.prepareStatement(insertSQL);
-            insertOperation.setString(1, "Verdi");
-            insertOperation.setString(2, "mario.rossi@live.it");
-            
-            insertOperation.executeUpdate(); 
-    */
-    
+   
     
 }
